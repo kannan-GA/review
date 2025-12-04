@@ -8,13 +8,14 @@ import { Loader2 } from 'lucide-react';
 interface ReviewFormProps {
   onSubmit: (review: Omit<Review, 'id' | 'author' | 'avatarUrl' | 'date' | 'verifiedPurchase' | 'status'>) => void;
   onCancel: () => void;
+  disableAutoNavigate?: boolean; // If true, don't auto-navigate to incentive page
 }
 
 const MAX_IMAGES = 3;
 const MAX_FILE_SIZE_MB = 5;
 const MAX_TEXT_LENGTH = 1000;
 
-function ReviewForm({ onSubmit, onCancel }: ReviewFormProps) {
+function ReviewForm({ onSubmit, onCancel, disableAutoNavigate = false }: ReviewFormProps) {
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
@@ -143,13 +144,13 @@ function ReviewForm({ onSubmit, onCancel }: ReviewFormProps) {
   };
 
   useEffect(() => {
-    if (submissionStatus === ReviewSubmissionStatus.SUCCESS_5_STAR) {
+    if (submissionStatus === ReviewSubmissionStatus.SUCCESS_5_STAR && !disableAutoNavigate) {
       const timer = setTimeout(() => {
         navigate('/incentive');
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [submissionStatus, navigate]);
+  }, [submissionStatus, navigate, disableAutoNavigate]);
 
   const isSubmitting = submissionStatus === ReviewSubmissionStatus.SUBMITTING;
   const canAddMoreImages = images.length < MAX_IMAGES;

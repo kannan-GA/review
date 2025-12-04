@@ -104,9 +104,9 @@ function FullReviewDisplay({ reviews, productId }: FullReviewDisplayProps) {
   return (
     <div className="space-y-8">
       <div className="border border-gray-200 rounded-lg shadow-sm p-6 bg-gray-50">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Compact Widget Demo</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Review Summary</h3>
         <p className="text-sm text-gray-600 mb-4">
-          This widget would be placed near the product title.
+          Overall rating and review count for this product.
         </p>
         <CompactRatingDisplay averageRating={stats.averageRating} totalReviews={stats.totalReviews} />
       </div>

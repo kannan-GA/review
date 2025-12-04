@@ -126,6 +126,9 @@ function AdminDashboard({ reviews, onApprove, onReject }: AdminDashboardProps) {
                     Product
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Rating
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -142,7 +145,7 @@ function AdminDashboard({ reviews, onApprove, onReject }: AdminDashboardProps) {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredReviews.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                       No reviews in this category.
                     </td>
                   </tr>
@@ -163,6 +166,11 @@ function AdminDashboard({ reviews, onApprove, onReject }: AdminDashboardProps) {
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className="text-gray-500">{review.productId}</span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="text-gray-500 text-sm">
+                          {review.orderId ? review.orderId.substring(0, 8) + '...' : 'N/A'}
+                        </span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <StarRating rating={review.rating} setRating={() => {}} />

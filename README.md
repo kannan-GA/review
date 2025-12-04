@@ -1,16 +1,16 @@
-# Review Widget System
+# Review System
 
-A comprehensive review system with an embeddable widget that can be integrated into any website. Features include review submission, rating display, image uploads, and Supabase integration.
+A comprehensive review system for order-based reviews. Features include review submission, rating display, image uploads, order verification, and Supabase integration.
 
 ## Features
 
 - ⭐ Star rating system
 - 📝 Review form with image uploads
-- 🎨 Embeddable widget (IIFE)
+- 🔗 Order-specific review pages
 - 🗄️ Supabase database integration
 - 📧 Email notifications (optional)
-- 🎯 Admin dashboard
-- 📊 Review statistics and analytics
+- 🎯 Admin dashboard with review moderation
+- 💰 Incentive system for 5-star reviews
 - 🚀 Vercel deployment ready
 
 ## Quick Start
@@ -30,24 +30,16 @@ npm run dev
 ### Build
 
 ```bash
-# Build main app
 npm run build
-
-# Build widget only
-npm run build:widget
-
-# Build both
-npm run build:all
 ```
 
 ## Project Structure
 
 ```
-bolt-review-system/
+review-system/
 ├── src/
 │   ├── components/       # React components
-│   ├── pages/           # Page components
-│   ├── widget/          # Widget implementation
+│   ├── pages/           # Page components (Reviews, Admin, OrderReview)
 │   └── types.ts         # TypeScript types
 ├── supabase/
 │   ├── migrations/      # Database migrations
@@ -59,39 +51,38 @@ bolt-review-system/
 
 ## Documentation
 
-- [Widget Integration Guide](./WIDGET_INTEGRATION.md) - How to embed the widget
 - [Deployment Guide](./DEPLOYMENT.md) - Deploy to Vercel and Supabase
 - [Environment Setup](./ENV_SETUP.md) - Configure environment variables
+- [Quick Start Guide](./QUICK_START.md) - Get started in 5 minutes
 
-## Widget Usage
+## Usage
 
-### Simple Integration
+### For Customers - Add Review Link
+
+In your e-commerce app, add a link to the review page:
 
 ```html
-<script 
-  src="https://your-app.vercel.app/widget/review-widget.iife.js"
-  data-review-widget
-  data-product-id="product-123"
-  data-supabase-url="your-supabase-url"
-  data-supabase-key="your-supabase-key"
-></script>
-
-<div id="review-widget-container"></div>
+<!-- Simple HTML -->
+<a href="https://your-app.vercel.app/#/review?orderId=ORDER-123">
+  Add Review
+</a>
 ```
 
-### JavaScript API
+```jsx
+// React example
+<Link to={`/#/review?orderId=${order.orderId}`}>
+  Add Review
+</Link>
+```
 
+### For Admins - Access Admin Dashboard
+
+Add `?admin=true` to the URL or set in browser console:
 ```javascript
-window.ReviewWidget.init({
-  productId: 'product-123',
-  supabaseUrl: 'your-supabase-url',
-  supabaseAnonKey: 'your-supabase-key',
-  buttonText: 'Write a Review',
-  onReviewSubmit: (review) => {
-    console.log('Review submitted:', review);
-  }
-});
+localStorage.setItem('isAdmin', 'true');
 ```
+
+Then access: `https://your-app.vercel.app/#/admin`
 
 ## Environment Variables
 

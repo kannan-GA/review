@@ -9,6 +9,7 @@ export interface Review {
   images: string[];
   verifiedPurchase: boolean;
   status: 'pending' | 'approved' | 'rejected';
+  orderId?: string; // Optional: links review to order
 }
 
 export interface ReviewStats {
