@@ -69,8 +69,9 @@ CREATE POLICY "Anyone can view approved reviews"
   ON reviews FOR SELECT
   USING (status = 'approved');
 
-CREATE POLICY "Anyone can insert reviews"
+CREATE POLICY "Allow public review inserts"
   ON reviews FOR INSERT
+  TO public
   WITH CHECK (true);
 
 -- Create policies for orders (authenticated users only)
