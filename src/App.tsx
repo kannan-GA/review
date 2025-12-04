@@ -2,11 +2,12 @@ import { HashRouter, Routes, Route, Navigate, Link, useLocation } from 'react-ro
 import { Star } from 'lucide-react';
 import IncentivePage from './pages/IncentivePage';
 import OrderReviewPage from './pages/OrderReviewPage';
+import ReviewsPage from './pages/ReviewsPage';
 
 function Navigation() {
   const location = useLocation();
 
-  // Hide navigation on review page
+  // Hide navigation on review page (singular, for order review modal)
   if (location.pathname === '/review') {
     return null;
   }
@@ -30,6 +31,9 @@ function Navigation() {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <Link to="/reviews" className={linkClass('/reviews')}>
+              Reviews
+            </Link>
             <Link to="/incentive" className={linkClass('/incentive')}>
               Incentive
             </Link>
@@ -48,6 +52,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/incentive" replace />} />
           <Route path="/review" element={<OrderReviewPage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/incentive" element={<IncentivePage />} />
         </Routes>
       </div>
