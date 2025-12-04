@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Preview - VLE Reviews</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    .controls {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .controls h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #1f2937;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 14px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+    .email-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    .email-container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .email-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+    .email-subject {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #f9fafb;
+      border-left: 4px solid #2563eb;
+    }
+    .email-preview {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    @media (max-width: 1200px) {
+      .email-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📧 Email Preview</h1>
+      <p>Preview how your review request emails will look to customers</p>
+    </div>
+
+    <div class="controls">
+      <h2>Customize Preview Data</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        <div class="input-group">
+          <label>Customer Name</label>
+          <input type="text" id="customerName" value="John Smith" oninput="updatePreviews()">
+        </div>
+        <div class="input-group">
+          <label>Product Name</label>
+          <input type="text" id="productName" value="Premium Wireless Headphones" oninput="updatePreviews()">
+        </div>
+        <div class="input-group">
+          <label>Order Date</label>
+          <input type="date" id="orderDate" oninput="updatePreviews()">
+        </div>
+        <div class="input-group">
+          <label>Product ID</label>
+          <input type="text" id="productId" value="PROD123" oninput="updatePreviews()">
+        </div>
+      </div>
+    </div>
+
+    <div class="email-grid">
+      <div class="email-container">
+        <div class="email-title">Initial Review Request</div>
+        <div class="email-subject">Subject: <span id="subject1"></span></div>
+        <div class="email-preview">
+          <iframe id="initialEmail" title="Initial Review Request Email"></iframe>
+        </div>
+      </div>
+
+      <div class="email-container">
+        <div class="email-title">Reminder Email</div>
+        <div class="email-subject">Subject: <span id="subject2"></span></div>
+        <div class="email-preview">
+          <iframe id="reminderEmail" title="Reminder Email"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set default date to today
+    document.getElementById('orderDate').valueAsDate = new Date();
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function generateEmailHTML(isReminder) {
+      const customerName = document.getElementById('customerName').value || 'John Smith';
+      const productName = document.getElementById('productName').value || 'Premium Wireless Headphones';
+      const orderDate = document.getElementById('orderDate').value || new Date().toISOString().split('T')[0];
+      const productId = document.getElementById('productId').value || 'PROD123';
+
+      const greeting = customerName.split(' ')[0];
+      const reviewUrl = `https://reviews.vlemobile.com?productId=${productId}&token=SAMPLE_TOKEN`;
+      const subject = isReminder
+        ? `Reminder: Share your experience with ${productName}`
+        : `How was your ${productName}?`;
+
+      return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 0;">
+        <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <!-- Logo -->
+          <tr>
+            <td style="padding: 20px 40px 5px; text-align: center; background-color: #ffffff; border-radius: 8px 8px 0 0;">
+              <img src="https://vlecdn.b-cdn.net/vlemobile-logo-260x150.png" alt="VLE Mobile" style="width: 130px; height: auto;">
+            </td>
+          </tr>
+
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px; text-align: center; background: #F97315;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Your Opinion Matters</h1>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px;">
+                ${isReminder ? `Hi again, ${greeting}!` : `Hi ${greeting}!`}
+              </h2>
+
+              <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                ${isReminder
+                  ? `We noticed you haven't had a chance to review your <strong>${productName}</strong> yet.`
+                  : `Thank you for your recent purchase of <strong>${productName}</strong>!`
+                }
+              </p>
+
+              <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                ${isReminder
+                  ? 'Your feedback is incredibly valuable to us and helps other customers make informed decisions.'
+                  : 'We hope you\'re enjoying it! We\'d love to hear about your experience.'
+                }
+              </p>
+
+              <p style="margin: 0 0 30px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                It only takes a minute to share your thoughts, and your review helps other customers make better decisions.
+              </p>
+
+              <!-- CTA Button -->
+              <table role="presentation" style="margin: 0 auto;">
+                <tr>
+                  <td style="border-radius: 6px; background: #F97315;">
+                    <a href="${reviewUrl}" style="display: inline-block; padding: 16px 40px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 6px;">
+                      Write Your Review
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 30px 0 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                <strong>Order Date:</strong> ${formatDate(orderDate)}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 8px 8px; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px; text-align: center;">
+                Thank you for being a valued customer!
+              </p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px; text-align: center;">
+                VLE Mobile Reviews &copy; 2025 | Powered by VLE
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `;
+    }
+
+    function updatePreviews() {
+      const productName = document.getElementById('productName').value || 'Premium Wireless Headphones';
+
+      document.getElementById('subject1').textContent = `How was your ${productName}?`;
+      document.getElementById('subject2').textContent = `Reminder: Share your experience with ${productName}`;
+
+      const initialFrame = document.getElementById('initialEmail');
+      const reminderFrame = document.getElementById('reminderEmail');
+
+      const initialDoc = initialFrame.contentDocument || initialFrame.contentWindow.document;
+      initialDoc.open();
+      initialDoc.write(generateEmailHTML(false));
+      initialDoc.close();
+
+      const reminderDoc = reminderFrame.contentDocument || reminderFrame.contentWindow.document;
+      reminderDoc.open();
+      reminderDoc.write(generateEmailHTML(true));
+      reminderDoc.close();
+    }
+
+    updatePreviews();
+  </script>
+</body>
+</html>

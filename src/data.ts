@@ -1,0 +1,113 @@
+import { Review, ReviewStats, User } from './types';
+
+export const mockUser: User = {
+  id: 'user-1',
+  firstName: 'John',
+  lastName: 'Smith',
+  isAuthenticated: true,
+  hasPurchasedProduct: true,
+};
+
+export const mockReviews: Review[] = [
+  {
+    id: 'review-1',
+    productId: 'product-1',
+    author: 'Sarah Johnson',
+    avatarUrl: 'https://picsum.photos/seed/user1/100/100',
+    date: '2024-11-15',
+    rating: 5,
+    text: 'Absolutely love this product! The quality exceeded my expectations and delivery was super fast. Highly recommend to anyone looking for a reliable option.',
+    images: ['https://picsum.photos/seed/rev1a/400/300', 'https://picsum.photos/seed/rev1b/400/300'],
+    verifiedPurchase: true,
+    status: 'approved',
+  },
+  {
+    id: 'review-2',
+    productId: 'product-1',
+    author: 'Michael Chen',
+    avatarUrl: 'https://picsum.photos/seed/user2/100/100',
+    date: '2024-11-10',
+    rating: 4,
+    text: 'Great product overall. Does exactly what it promises. Only minor issue is the packaging could be better, but the product itself is fantastic.',
+    images: [],
+    verifiedPurchase: true,
+    status: 'approved',
+  },
+  {
+    id: 'review-3',
+    productId: 'product-1',
+    author: 'Emily Rodriguez',
+    avatarUrl: 'https://picsum.photos/seed/user3/100/100',
+    date: '2024-11-08',
+    rating: 5,
+    text: 'This is my third purchase and I keep coming back for more! Quality is consistently excellent and customer service is top-notch.',
+    images: ['https://picsum.photos/seed/rev3a/400/300'],
+    verifiedPurchase: true,
+    status: 'approved',
+  },
+  {
+    id: 'review-4',
+    productId: 'product-1',
+    author: 'David Thompson',
+    avatarUrl: 'https://picsum.photos/seed/user4/100/100',
+    date: '2024-11-05',
+    rating: 3,
+    text: 'Product is okay. It works as described but nothing special. For the price point, I expected a bit more features.',
+    images: [],
+    verifiedPurchase: true,
+    status: 'approved',
+  },
+  {
+    id: 'review-5',
+    productId: 'product-1',
+    author: 'Lisa Anderson',
+    avatarUrl: 'https://picsum.photos/seed/user5/100/100',
+    date: '2024-11-02',
+    rating: 5,
+    text: 'Outstanding! Best purchase I made this year. The attention to detail is remarkable and it arrived perfectly packaged.',
+    images: ['https://picsum.photos/seed/rev5a/400/300', 'https://picsum.photos/seed/rev5b/400/300', 'https://picsum.photos/seed/rev5c/400/300'],
+    verifiedPurchase: true,
+    status: 'approved',
+  },
+  {
+    id: 'review-6',
+    productId: 'product-1',
+    author: 'James Wilson',
+    avatarUrl: 'https://picsum.photos/seed/user6/100/100',
+    date: '2024-10-28',
+    rating: 2,
+    text: 'Not what I expected. The description was misleading and the quality doesn\'t match the price. Disappointed with this purchase.',
+    images: [],
+    verifiedPurchase: true,
+    status: 'pending',
+  },
+  {
+    id: 'review-7',
+    productId: 'product-1',
+    author: 'Maria Garcia',
+    avatarUrl: 'https://picsum.photos/seed/user7/100/100',
+    date: '2024-10-25',
+    rating: 4,
+    text: 'Very satisfied with this purchase. Works perfectly and looks great. Shipping was faster than expected. Would definitely buy again!',
+    images: ['https://picsum.photos/seed/rev7a/400/300'],
+    verifiedPurchase: true,
+    status: 'rejected',
+  },
+];
+
+export const mockProductStats: ReviewStats = {
+  averageRating: 4.8,
+  totalReviews: 125,
+  distribution: {
+    '5': 95,
+    '4': 20,
+    '3': 6,
+    '2': 3,
+    '1': 1,
+  },
+};
+
+export const mockCompactStats = {
+  averageRating: 4.0,
+  totalReviews: 3017,
+};

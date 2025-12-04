@@ -1,0 +1,2720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review System Integration Guide - VLE Mobile</title>
+    <meta name="description" content="Production-ready review management system for e-commerce platforms">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --orange: #F97316;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --bg: #FFFFFF;
+            --text: var(--gray-900);
+            --border: var(--gray-200);
+            --sidebar-width: 280px;
+            --header-height: 70px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0F172A;
+            --text: #F1F5F9;
+            --border: #334155;
+            --gray-50: #1E293B;
+            --gray-100: #334155;
+            --gray-200: #475569;
+            --gray-800: #CBD5E1;
+            --gray-900: #F1F5F9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            gap: 0;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--gray-50);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            transition: transform 0.3s;
+        }
+
+        .sidebar h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-500);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: var(--gray-700);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar nav a:hover {
+            background: var(--gray-50);
+            color: var(--primary);
+        }
+
+        .sidebar nav a.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 3rem 4rem;
+            min-height: calc(100vh - var(--header-height));
+            width: calc(100vw - var(--sidebar-width));
+            box-sizing: border-box;
+        }
+
+        .hero {
+            margin-bottom: 4rem;
+            max-width: 100%;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            width: 100%;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .author-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--gray-50);
+            border-radius: 9999px;
+            margin-bottom: 1.5rem;
+        }
+
+        .author-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+        }
+
+        .metadata {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .quick-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .quick-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Content Sections */
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: calc(var(--header-height) + 2rem);
+            max-width: 100%;
+        }
+
+        section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--text);
+        }
+
+        section p {
+            margin-bottom: 1rem;
+            color: var(--gray-700);
+            font-size: 1rem;
+            line-height: 1.7;
+            width: 100%;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: var(--gray-50);
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout-info {
+            background: rgba(37, 99, 235, 0.05);
+            border-color: var(--primary);
+        }
+
+        .callout-success {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: var(--success);
+        }
+
+        .callout-warning {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: var(--warning);
+        }
+
+        .callout-danger {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: var(--danger);
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            position: relative;
+            margin: 1.5rem 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--gray-800);
+            color: var(--gray-100);
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-size: 0.875rem;
+        }
+
+        .copy-btn {
+            background: var(--gray-700);
+            border: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.25rem;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--gray-600);
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+        }
+
+        pre[class*="language-"] {
+            margin: 0 !important;
+            border-radius: 0 0 0.5rem 0.5rem !important;
+        }
+
+        /* Tabs */
+        .tabs {
+            margin: 2rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 0;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray-600);
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            color: var(--primary);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background: var(--gray-50);
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* Accordion */
+        .accordion {
+            margin: 2rem 0;
+        }
+
+        .accordion-item {
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 1rem 1.5rem;
+            background: var(--gray-50);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .accordion-header:hover {
+            background: var(--gray-100);
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 2000px;
+        }
+
+        .accordion-body {
+            padding: 1.5rem;
+        }
+
+        /* API Card */
+        .api-card {
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            background: var(--gray-50);
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 0.75rem;
+        }
+
+        .method-get {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .method-post {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .method-patch {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            }
+
+            main {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            header,
+            .sidebar,
+            .theme-toggle,
+            .copy-btn,
+            .mobile-menu-btn {
+                display: none !important;
+            }
+
+            main {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            a {
+                color: black;
+                text-decoration: underline;
+            }
+
+            .code-block {
+                page-break-inside: avoid;
+            }
+
+            section {
+                page-break-before: always;
+            }
+
+            section:first-of-type {
+                page-break-before: avoid;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">VLE Reviews</div>
+        <div class="header-actions">
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <h3>Contents</h3>
+            <nav>
+                <a href="#overview" class="active">Overview</a>
+                <a href="#deployment">Deployment & Requirements</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#prerequisites">Prerequisites</a>
+                <a href="#quick-start">Quick Start (5 min)</a>
+                <a href="#authentication">Authentication Setup</a>
+                <a href="#embedding">Embedding the Widget</a>
+                <a href="#email-automation">Email Automation</a>
+                <a href="#api-reference">API Reference</a>
+                <a href="#admin-portal">Admin Portal</a>
+                <a href="#testing">Testing & Debugging</a>
+                <a href="#production">Production Deployment</a>
+                <a href="#troubleshooting">Troubleshooting</a>
+            </nav>
+        </aside>
+
+        <main>
+            <div class="hero">
+                <h1>VLE Mobile Review System</h1>
+                <p class="subtitle">Internal Documentation - Setup & Integration Guide</p>
+
+                <div class="author-badge">
+                    <div class="author-avatar"></div>
+                    <div>
+                        <div style="font-weight: 600;">Senior Backend Engineer</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-600);">Last updated: December 2, 2025</div>
+                    </div>
+                </div>
+
+                <div class="metadata">
+                    <span class="badge badge-primary">⏱️ 30 minutes setup</span>
+                    <span class="badge badge-success">📊 Intermediate</span>
+                    <span class="badge badge-warning">⚡ Next.js + PostgreSQL + JWT</span>
+                </div>
+
+                <div class="quick-links">
+                    <a href="https://github.com/megacool1-coder/bolt-review-system" target="_blank">GitHub Repo</a>
+                    <span>|</span>
+                    <a href="/widget?productId=demo" target="_blank">Live Demo</a>
+                    <span>|</span>
+                    <a href="#api-reference">API Reference</a>
+                    <span>|</span>
+                    <a href="mailto:support@vlemobile.com">Support</a>
+                </div>
+            </div>
+
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>This is VLE Mobile's internal review management system, designed specifically for our e-commerce platform. It provides professional review functionality with minimal integration complexity.</p>
+
+                <p>The system operates as a standalone application that can be embedded into our existing product pages using JWT authentication. It handles review storage, moderation, statistics calculation, and automated review request emails independently from our main e-commerce database.</p>
+
+                <p>This architecture keeps our main e-commerce platform unchanged - no new database tables in the primary system, no modifications to existing APIs. The review system uses its own Supabase database and communicates with our platform via JWT tokens for authentication and webhooks for order notifications.</p>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h4>Auto-Approve 5-Star Reviews</h4>
+                        <p>Five-star reviews appear instantly on your product pages. Lower ratings go to moderation for quality control.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📧</div>
+                        <h4>Automated Review Requests</h4>
+                        <p>Automatically email customers 7 days after purchase, with a gentle reminder at 15 days if they haven't reviewed.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎁</div>
+                        <h4>Built-in Incentive Program</h4>
+                        <p>Customers who leave 4-5 star reviews get redirected to a rewards page with links to external review platforms.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h4>Separate Admin Portal</h4>
+                        <p>Independent admin dashboard at /admin with its own authentication. No changes to your existing admin panel.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔌</div>
+                        <h4>Easy Embedding</h4>
+                        <p>One script tag, one div element. Works with any e-commerce platform: custom, Shopify, WooCommerce, Magento.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h4>Real-Time Statistics</h4>
+                        <p>Automatic calculation of average ratings and star distribution, cached for optimal performance.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="deployment">
+                <h2>Deployment & Requirements</h2>
+                <p>This system is designed to be deployed as a standalone web application with its own infrastructure. Here's what you need to get started:</p>
+
+                <h3>System Requirements</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🖥️</div>
+                        <h4>Server Environment</h4>
+                        <ul style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600); line-height: 1.8;">
+                            <li>Node.js 18 or higher</li>
+                            <li>4GB RAM minimum</li>
+                            <li>2 CPU cores recommended</li>
+                            <li>10GB storage minimum</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🗄️</div>
+                        <h4>Database</h4>
+                        <ul style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600); line-height: 1.8;">
+                            <li>Supabase account (required)</li>
+                            <li>PostgreSQL 15+ via Supabase</li>
+                            <li>Edge Functions enabled</li>
+                            <li>Free tier sufficient for start</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📧</div>
+                        <h4>Email Service</h4>
+                        <ul style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600); line-height: 1.8;">
+                            <li>SendGrid account</li>
+                            <li>API key with send permissions</li>
+                            <li>Verified sender email</li>
+                            <li>Optional: custom domain</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <h4>Security</h4>
+                        <ul style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600); line-height: 1.8;">
+                            <li>SSL/TLS certificate</li>
+                            <li>JWT secret key (shared)</li>
+                            <li>Webhook secret token</li>
+                            <li>Admin password</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Deployment Options</h3>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Option 1: Vercel (Recommended)</span>
+                    </div>
+                    <div style="padding: 1.5rem; font-size: 0.95rem; line-height: 1.8;">
+                        <p><strong>Best for:</strong> Quick deployment, automatic scaling, zero-config SSL</p>
+                        <p style="margin-top: 0.5rem;"><strong>Steps:</strong></p>
+                        <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Push code to GitHub repository</li>
+                            <li>Connect repository to Vercel</li>
+                            <li>Add environment variables in Vercel dashboard</li>
+                            <li>Deploy (automatic on git push)</li>
+                        </ol>
+                        <p style="margin-top: 0.5rem; color: var(--success);"><strong>Cost:</strong> Free for hobby projects, $20/mo for production</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Option 2: Your Own Server</span>
+                    </div>
+                    <div style="padding: 1.5rem; font-size: 0.95rem; line-height: 1.8;">
+                        <p><strong>Best for:</strong> Full control, existing infrastructure, cost optimization</p>
+                        <p style="margin-top: 0.5rem;"><strong>Requirements:</strong></p>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Ubuntu 20.04+ or similar Linux distribution</li>
+                            <li>Nginx or Apache for reverse proxy</li>
+                            <li>PM2 or systemd for process management</li>
+                            <li>SSL certificate (Let's Encrypt recommended)</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Basic Setup:</strong></p>
+                        <pre style="background: var(--gray-100); padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem; overflow-x: auto;"><code># Clone and build
+git clone https://github.com/vlemobile/review-system
+cd review-system
+npm install
+npm run build
+
+# Start with PM2
+pm2 start npm --name "review-system" -- start
+pm2 save
+pm2 startup</code></pre>
+                        <p style="margin-top: 0.5rem; color: var(--warning);"><strong>Cost:</strong> Depends on your server provider</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Option 3: Docker Container</span>
+                    </div>
+                    <div style="padding: 1.5rem; font-size: 0.95rem; line-height: 1.8;">
+                        <p><strong>Best for:</strong> Consistent environments, easy scaling, DevOps workflows</p>
+                        <p style="margin-top: 0.5rem;"><strong>Platforms:</strong></p>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>AWS ECS / Fargate</li>
+                            <li>Google Cloud Run</li>
+                            <li>Azure Container Instances</li>
+                            <li>Your own Docker host</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Basic Dockerfile:</strong></p>
+                        <pre style="background: var(--gray-100); padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem; overflow-x: auto;"><code>FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]</code></pre>
+                        <p style="margin-top: 0.5rem; color: var(--primary);"><strong>Cost:</strong> Varies by cloud provider</p>
+                    </div>
+                </div>
+
+                <h3>Environment Configuration</h3>
+                <p>Required environment variables for all deployment options:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>.env</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-bash"># Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# JWT Authentication
+JWT_SECRET=your-jwt-secret-shared-with-main-site
+
+# SendGrid Email
+SENDGRID_API_KEY=your-sendgrid-api-key
+FROM_EMAIL=reviews@vlemobile.com
+
+# Security
+WEBHOOK_SECRET=your-webhook-secret
+ADMIN_PASSWORD=your-secure-admin-password
+
+# Application
+REVIEW_SYSTEM_URL=https://reviews.vlemobile.com</code></pre>
+                </div>
+
+                <div class="callout callout-warning">
+                    <strong>🔒 Security Note:</strong> Never commit the .env file to version control. Use your hosting platform's environment variable settings or a secure secrets manager.
+                </div>
+
+                <h3>Post-Deployment Checklist</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox"> Application builds successfully</li>
+                    <li><input type="checkbox"> Database migrations applied</li>
+                    <li><input type="checkbox"> Edge functions deployed to Supabase</li>
+                    <li><input type="checkbox"> SSL certificate active</li>
+                    <li><input type="checkbox"> Environment variables configured</li>
+                    <li><input type="checkbox"> Admin login working</li>
+                    <li><input type="checkbox"> SendGrid email sending tested</li>
+                    <li><input type="checkbox"> Webhook endpoint accessible</li>
+                    <li><input type="checkbox"> Review widget loads on test page</li>
+                </ul>
+            </section>
+
+            <section id="architecture">
+                <h2>Architecture</h2>
+                <p>Understanding how the system fits into your existing infrastructure will help you integrate it smoothly. Here's the complete architecture:</p>
+
+                <div class="architecture">
+<pre>┌─────────────────────────────────────────────────────┐
+│  Your E-commerce Website                            │
+│                                                      │
+│  - Customer logs in → Generate JWT                  │
+│  - Product page loads                               │
+│  - Embed review widget (one script tag)             │
+└────────────────────┬────────────────────────────────┘
+                     │
+                     │ Passes JWT token + product ID
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│  VLE Review System (Standalone Next.js App)         │
+│                                                      │
+│  - Displays existing reviews                        │
+│  - Collects new reviews from customers              │
+│  - Verifies JWT using shared secret                 │
+│  - Stores reviews in separate database              │
+│  - Sends review request emails (optional)           │
+│  - Calculates statistics and caching                │
+└────────────────────┬────────────────────────────────┘
+                     │
+                     │ Optional: Webhook notifications
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│  Admin Portal (Separate Authentication)             │
+│                                                      │
+│  - Independent login at /admin/login                │
+│  - Moderate pending reviews                         │
+│  - View analytics and statistics                    │
+│  - No connection to your admin panel                │
+└─────────────────────────────────────────────────────┘</pre>
+                </div>
+
+                <div class="callout callout-success">
+                    <strong>✅ Zero Database Changes</strong><br>
+                    The review system uses its own PostgreSQL database. Your existing database schema remains completely untouched.
+                </div>
+
+                <div class="callout callout-success">
+                    <strong>✅ No API Endpoints to Build</strong><br>
+                    You don't need to create any new API routes. The review system provides all necessary endpoints.
+                </div>
+
+                <div class="callout callout-success">
+                    <strong>✅ JWT Tokens You Already Have</strong><br>
+                    The system uses the same JWT secret as your main e-commerce platform for seamless authentication.
+                </div>
+            </section>
+
+            <section id="prerequisites">
+                <h2>Prerequisites</h2>
+
+                <h3>Required</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox"> Node.js 18+ installed (for development)</li>
+                    <li><input type="checkbox"> Existing e-commerce website</li>
+                    <li><input type="checkbox"> JWT authentication for customers</li>
+                    <li><input type="checkbox"> Access to product page HTML/templates</li>
+                    <li><input type="checkbox"> Ability to add JavaScript to product pages</li>
+                </ul>
+
+                <h3>Optional (For Full Features)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox"> SendGrid account (for automated review request emails)</li>
+                    <li><input type="checkbox"> Webhook capability (to notify review system of completed orders)</li>
+                    <li><input type="checkbox"> Custom domain for review system</li>
+                </ul>
+
+                <h3>Tech Stack Compatibility</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Compatible</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Custom Next.js</td>
+                            <td>✅ Yes</td>
+                            <td>Perfect fit - native integration</td>
+                        </tr>
+                        <tr>
+                            <td>Custom React</td>
+                            <td>✅ Yes</td>
+                            <td>Use widget embed method</td>
+                        </tr>
+                        <tr>
+                            <td>Shopify</td>
+                            <td>✅ Yes</td>
+                            <td>Add via theme customization</td>
+                        </tr>
+                        <tr>
+                            <td>WooCommerce</td>
+                            <td>✅ Yes</td>
+                            <td>Add via plugin hooks</td>
+                        </tr>
+                        <tr>
+                            <td>Magento</td>
+                            <td>⚠️ Maybe</td>
+                            <td>Requires custom development</td>
+                        </tr>
+                        <tr>
+                            <td>Custom PHP</td>
+                            <td>✅ Yes</td>
+                            <td>Generate JWT in PHP, embed widget</td>
+                        </tr>
+                        <tr>
+                            <td>Ruby on Rails</td>
+                            <td>✅ Yes</td>
+                            <td>Generate JWT in Ruby, embed widget</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="quick-start">
+                <h2>Quick Start (5 Minutes)</h2>
+                <p>Let's get you up and running. If you already have JWT authentication (most modern sites do), this is literally just two steps.</p>
+
+                <h3>Step 1: Generate JWT Token</h3>
+                <p>You're probably already doing this for user authentication. We need a JWT with these fields:</p>
+
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="switchTab(event, 'js')">JavaScript</button>
+                        <button class="tab-button" onclick="switchTab(event, 'php')">PHP</button>
+                        <button class="tab-button" onclick="switchTab(event, 'python')">Python</button>
+                        <button class="tab-button" onclick="switchTab(event, 'ruby')">Ruby</button>
+                    </div>
+
+                    <div id="js" class="tab-content active">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Node.js / Express</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code class="language-javascript">const jwt = require('jsonwebtoken');
+
+// In your authentication route or middleware
+const token = jwt.sign({
+  id: user.id,                    // Required
+  email: user.email,              // Required
+  firstName: user.firstName,      // Required
+  lastName: user.lastName,        // Required
+}, process.env.JWT_SECRET, {
+  expiresIn: '7d'
+});
+
+// Pass this token to your product page template
+res.render('product', {
+  product: product,
+  userToken: token
+});</code></pre>
+                        </div>
+                    </div>
+
+                    <div id="php" class="tab-content">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>PHP / Laravel</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code class="language-php">use Firebase\JWT\JWT;
+
+// In your controller
+$token = JWT::encode([
+    'id' => $user->id,
+    'email' => $user->email,
+    'firstName' => $user->first_name,
+    'lastName' => $user->last_name,
+    'exp' => time() + (7 * 24 * 60 * 60)  // 7 days
+], env('JWT_SECRET'), 'HS256');
+
+// Pass to view
+return view('product', [
+    'product' => $product,
+    'userToken' => $token
+]);</code></pre>
+                        </div>
+                    </div>
+
+                    <div id="python" class="tab-content">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Python / Django</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code class="language-python">import jwt
+import datetime
+from django.conf import settings
+
+# In your view
+token = jwt.encode({
+    'id': str(user.id),
+    'email': user.email,
+    'firstName': user.first_name,
+    'lastName': user.last_name,
+    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+}, settings.JWT_SECRET, algorithm='HS256')
+
+# Pass to template
+return render(request, 'product.html', {
+    'product': product,
+    'user_token': token
+})</code></pre>
+                        </div>
+                    </div>
+
+                    <div id="ruby" class="tab-content">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Ruby / Rails</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code class="language-ruby">require 'jwt'
+
+# In your controller
+token = JWT.encode({
+  id: user.id.to_s,
+  email: user.email,
+  firstName: user.first_name,
+  lastName: user.last_name,
+  exp: 7.days.from_now.to_i
+}, ENV['JWT_SECRET'], 'HS256')
+
+# Pass to view
+@user_token = token</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Step 2: Embed on Product Page</h3>
+                <p>Add this HTML where you want reviews to appear (usually below product description):</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>product.html (any template engine)</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-html">&lt;!-- Add this div where you want reviews --&gt;
+&lt;div id="vle-reviews"
+     data-product-id="&lt;?php echo $product-&gt;id; ?&gt;"
+     data-user-token="&lt;?php echo $userToken; ?&gt;"&gt;
+&lt;/div&gt;
+
+&lt;!-- Add this script once, at the bottom of the page --&gt;
+&lt;script src="https://reviews.vlemobile.com/embed.js" async&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="callout callout-success">
+                    <strong>🎉 That's It!</strong><br>
+                    No other changes needed. The widget will automatically load and display reviews for your product.
+                </div>
+
+                <h3>Step 3: Test It</h3>
+                <ol>
+                    <li>Load your product page as a logged-in customer</li>
+                    <li>The review widget should appear automatically</li>
+                    <li>Click "Write a Review" to test submission</li>
+                    <li>Submit a 5-star review - it appears instantly!</li>
+                    <li>Submit a 4-star review - see the "pending moderation" message</li>
+                </ol>
+
+                <div class="callout callout-info">
+                    <strong>💡 Pro Tip:</strong> Open browser DevTools and check the Network tab. You should see successful API calls to <code>reviews.vlemobile.com/api/reviews</code> with 200 OK responses.
+                </div>
+            </section>
+
+            <section id="authentication">
+                <h2>Authentication Setup</h2>
+
+                <h3>JWT Token Requirements</h3>
+                <p>The JWT token must include these exact fields:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Example</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>string</td>
+                            <td>✅ Yes</td>
+                            <td>"user_12345"</td>
+                            <td>Unique user identifier</td>
+                        </tr>
+                        <tr>
+                            <td><code>email</code></td>
+                            <td>string</td>
+                            <td>✅ Yes</td>
+                            <td>"john@example.com"</td>
+                            <td>User email address</td>
+                        </tr>
+                        <tr>
+                            <td><code>firstName</code></td>
+                            <td>string</td>
+                            <td>✅ Yes</td>
+                            <td>"John"</td>
+                            <td>User first name</td>
+                        </tr>
+                        <tr>
+                            <td><code>lastName</code></td>
+                            <td>string</td>
+                            <td>✅ Yes</td>
+                            <td>"Doe"</td>
+                            <td>User last name</td>
+                        </tr>
+                        <tr>
+                            <td><code>exp</code></td>
+                            <td>number</td>
+                            <td>✅ Yes</td>
+                            <td>1735689600</td>
+                            <td>Unix timestamp expiration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Shared Secret Configuration</h3>
+                <p>The JWT secret is the only thing we need to coordinate. Here's how to set it up securely:</p>
+
+                <div class="callout callout-danger">
+                    <strong>⚠️ Security Warning</strong><br>
+                    Never expose your JWT secret in client-side code, public repositories, or logs. Treat it like a password.
+                </div>
+
+                <h4>On Your Server:</h4>
+                <ol>
+                    <li><strong>Generate a strong secret:</strong>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Terminal</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code class="language-bash">openssl rand -base64 32</code></pre>
+                        </div>
+                    </li>
+                    <li><strong>Store in environment variable:</strong>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>.env</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code class="language-bash">JWT_SECRET=your-generated-secret-here</code></pre>
+                        </div>
+                    </li>
+                    <li><strong>Configure in environment:</strong> Add the JWT_SECRET to your .env file for both the main site and review system</li>
+                </ol>
+
+                <h4>On Review System:</h4>
+                <p>We configure the same secret as <code>CUSTOMER_JWT_SECRET</code> in our environment variables. This allows us to verify that tokens were generated by your server.</p>
+
+                <h3>Token Verification Flow</h3>
+                <div class="architecture">
+<pre>1. Customer logs into your site
+        ↓
+2. Your server generates JWT with user data
+        ↓
+3. JWT passed to product page template
+        ↓
+4. Widget receives token via data-user-token
+        ↓
+5. Widget stores token in sessionStorage
+        ↓
+6. Customer clicks "Write Review"
+        ↓
+7. API request includes token in Authorization header
+        ↓
+8. Review system verifies JWT signature
+        ↓
+9. If valid, extract user info and process review</pre>
+                </div>
+
+                <h3>Testing Token Generation</h3>
+                <p>You can test your JWT tokens at <a href="https://jwt.io" target="_blank">jwt.io</a>:</p>
+                <ol>
+                    <li>Copy a generated token</li>
+                    <li>Paste into jwt.io debugger</li>
+                    <li>Enter your secret in the "Verify Signature" section</li>
+                    <li>Check that all required fields are present</li>
+                    <li>Verify signature shows "Valid"</li>
+                </ol>
+            </section>
+
+            <section id="embedding">
+                <h2>Embedding the Widget</h2>
+
+                <h3>Basic Embedding (Recommended)</h3>
+                <p>The simplest way to embed reviews is using data attributes:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>HTML</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-html">&lt;div id="vle-reviews"
+     data-product-id="PROD-123"
+     data-user-token="eyJhbGciOiJI..."&gt;
+&lt;/div&gt;
+&lt;script src="https://reviews.vlemobile.com/embed.js" async&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <h3>JavaScript API Method</h3>
+                <p>For more control, use the JavaScript API:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>HTML + JavaScript</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-html">&lt;div id="review-container"&gt;&lt;/div&gt;
+
+&lt;script src="https://reviews.vlemobile.com/embed.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  VLEReviews.init({
+    containerId: 'review-container',
+    productId: 'PROD-123',
+    userToken: 'eyJhbGciOiJI...',
+    apiUrl: 'https://reviews.vlemobile.com'
+  });
+&lt;/script&gt;</code></pre>
+                </div>
+
+                <h3>Compact Widget (Product Listings)</h3>
+                <p>For product listing pages, category pages, or anywhere you need a minimal display, use the compact mode:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>HTML - Compact Mode</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-html">&lt;div id="vle-reviews-compact"
+     data-product-id="PROD-123"
+     data-user-token="eyJhbGciOiJI..."
+     data-mode="compact"&gt;
+&lt;/div&gt;
+&lt;script src="https://reviews.vlemobile.com/embed.js" async&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="callout callout-success">
+                    <strong>✨ Compact Widget Features:</strong><br>
+                    • Displays star rating with average score (e.g., "4.5")<br>
+                    • Shows total review count with click-to-scroll functionality<br>
+                    • Minimal horizontal layout - perfect for product cards<br>
+                    • Automatically scrolls to full reviews when clicked
+                </div>
+
+                <h4>Use Cases for Compact Widget:</h4>
+                <ul>
+                    <li><strong>Product Listing Pages:</strong> Show ratings in product grid/list views</li>
+                    <li><strong>Search Results:</strong> Display quick rating overview</li>
+                    <li><strong>Category Pages:</strong> Add social proof without taking up space</li>
+                    <li><strong>Product Cards:</strong> Integrate into existing product card components</li>
+                </ul>
+
+                <h3>Styling the Container</h3>
+                <p>The widget inherits your site's font family. Add custom styles to the container:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>CSS</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-css">/* Full Widget */
+#vle-reviews {
+  margin: 40px 0;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Compact Widget */
+#vle-reviews-compact {
+  display: inline-flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  #vle-reviews {
+    margin: 20px -15px;
+    border-radius: 0;
+    padding: 15px;
+  }
+}</code></pre>
+                </div>
+
+                <div class="callout callout-info">
+                    <strong>💡 Widget Behavior:</strong><br>
+                    The widget is loaded in an iframe that automatically resizes to fit content. It sends postMessage events to your page to adjust height dynamically.
+                </div>
+            </section>
+
+            <section id="email-automation">
+                <h2>Email Automation with SendGrid</h2>
+                <p>The review system includes automated email functionality to request reviews from customers after their purchase. This is completely optional but highly recommended to increase review collection rates.</p>
+
+                <div class="callout callout-success">
+                    <strong>✅ Automated Review Requests:</strong><br>
+                    • Initial request sent 7 days after purchase<br>
+                    • Reminder sent 15 days after purchase (if no review submitted)<br>
+                    • Beautiful HTML email templates included<br>
+                    • Automatic cancellation if customer reviews early
+                </div>
+
+                <h3>Step 1: Create SendGrid Account</h3>
+                <ol>
+                    <li>Sign up for a free SendGrid account at <a href="https://signup.sendgrid.com/" target="_blank">signup.sendgrid.com</a></li>
+                    <li>Verify your sender email address or domain</li>
+                    <li>Create an API key with "Mail Send" permissions</li>
+                </ol>
+
+                <h3>Step 2: Configure Environment Variables</h3>
+                <p>Add these variables to your Supabase Edge Functions secrets:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Supabase Dashboard → Project Settings → Edge Functions → Secrets</span>
+                    </div>
+                    <pre><code class="language-bash">SENDGRID_API_KEY=SG.your_sendgrid_api_key_here
+SENDGRID_FROM_EMAIL=reviews@yourdomain.com
+WEBHOOK_SECRET=your_secure_random_string_here
+APP_URL=https://reviews.yourdomain.com</code></pre>
+                </div>
+
+                <div class="callout callout-warning">
+                    <strong>🔒 Security Note:</strong><br>
+                    Generate a strong random string for WEBHOOK_SECRET. Use: <code>openssl rand -base64 32</code>
+                </div>
+
+                <h3>Step 3: Setup Order Webhook</h3>
+                <p>When a customer completes a purchase on your e-commerce site, send their order data to the webhook endpoint:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>POST Request to Webhook</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-javascript">// In your order completion handler
+fetch('https://[your-project].supabase.co/functions/v1/order-webhook', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Webhook-Secret': 'your_webhook_secret_here'
+  },
+  body: JSON.stringify({
+    orderId: 'ORD-12345',
+    customerEmail: 'customer@example.com',
+    customerName: 'John Doe',
+    productId: 'PROD-123',
+    productName: 'Product Name',
+    purchaseDate: new Date().toISOString()
+  })
+});</code></pre>
+                </div>
+
+                <h3>Step 4: Setup Scheduled Email Processing</h3>
+                <p>Configure a cron job to process the email queue regularly. Use your preferred method:</p>
+
+                <h4>Option A: Supabase Cron Jobs (Recommended)</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>SQL - Run in Supabase SQL Editor</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-sql">-- Enable pg_cron extension
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- Schedule email processing every hour
+SELECT cron.schedule(
+  'process-review-emails',
+  '0 * * * *', -- Every hour at minute 0
+  $$
+  SELECT net.http_post(
+    url := 'https://[your-project].supabase.co/functions/v1/process-email-queue',
+    headers := '{"Content-Type": "application/json", "Authorization": "Bearer [SERVICE_ROLE_KEY]"}'::jsonb,
+    body := '{}'::jsonb
+  );
+  $$
+);</code></pre>
+                </div>
+
+                <h4>Option B: External Cron Service</h4>
+                <p>Use services like cron-job.org, EasyCron, or your own server to hit this endpoint hourly:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>cURL Command</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-bash">curl -X POST \
+  'https://[your-project].supabase.co/functions/v1/process-email-queue' \
+  -H 'Authorization: Bearer [SERVICE_ROLE_KEY]' \
+  -H 'Content-Type: application/json'</code></pre>
+                </div>
+
+                <h3>Email Templates</h3>
+                <p>The system includes professional, responsive HTML email templates:</p>
+
+                <div class="feature-card">
+                    <h4>Initial Review Request (Day 7)</h4>
+                    <p>Sent 7 days after purchase with a friendly message asking for feedback.</p>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Professional design with your branding</li>
+                        <li>Direct link to review page with pre-filled customer token</li>
+                        <li>Mobile-responsive layout</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Reminder Email (Day 15)</h4>
+                    <p>Gentle reminder sent 15 days after purchase if no review submitted yet.</p>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Polite follow-up message</li>
+                        <li>Automatically cancelled if customer reviews early</li>
+                        <li>Same professional design as initial request</li>
+                    </ul>
+                </div>
+
+                <h3>Testing the Email System</h3>
+                <p>Test the complete flow before going live:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Test Webhook</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-bash"># Send test order
+curl -X POST \
+  'https://[your-project].supabase.co/functions/v1/order-webhook' \
+  -H 'Content-Type: application/json' \
+  -H 'X-Webhook-Secret: your_webhook_secret' \
+  -d '{
+    "orderId": "TEST-001",
+    "customerEmail": "your-test-email@example.com",
+    "customerName": "Test User",
+    "productId": "TEST-PROD",
+    "productName": "Test Product",
+    "purchaseDate": "2025-11-25T10:00:00Z"
+  }'
+
+# Manually trigger email processing
+curl -X POST \
+  'https://[your-project].supabase.co/functions/v1/process-email-queue' \
+  -H 'Authorization: Bearer [SERVICE_ROLE_KEY]'</code></pre>
+                </div>
+
+                <h3>Monitoring Email Queue</h3>
+                <p>Check email queue status in your Supabase database:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>SQL Query</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-sql">-- View pending emails
+SELECT * FROM email_queue
+WHERE status = 'pending'
+ORDER BY scheduled_for;
+
+-- View sent emails
+SELECT * FROM email_queue
+WHERE status = 'sent'
+ORDER BY sent_at DESC
+LIMIT 10;
+
+-- View failed emails
+SELECT * FROM email_queue
+WHERE status = 'failed';</code></pre>
+                </div>
+
+                <div class="callout callout-info">
+                    <strong>📊 Email Statistics:</strong><br>
+                    The email_queue table tracks all emails with statuses: pending, sent, failed, or cancelled. Monitor this to ensure emails are being sent successfully.
+                </div>
+
+                <h3>Edge Functions Deployed</h3>
+                <p>The following edge functions have been deployed for email automation:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Purpose</th>
+                            <th>Trigger</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>order-webhook</code></td>
+                            <td>Receives order data and schedules emails</td>
+                            <td>Called by your e-commerce system</td>
+                        </tr>
+                        <tr>
+                            <td><code>send-review-email</code></td>
+                            <td>Sends individual emails via SendGrid</td>
+                            <td>Called by process-email-queue</td>
+                        </tr>
+                        <tr>
+                            <td><code>process-email-queue</code></td>
+                            <td>Processes pending emails in queue</td>
+                            <td>Cron job (hourly recommended)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+                <ul class="checklist">
+                    <li>Test with your own email first before going live</li>
+                    <li>Monitor the email_queue table for failed sends</li>
+                    <li>Set up SendGrid alerts for bounce rates and spam reports</li>
+                    <li>Use a verified domain for SENDGRID_FROM_EMAIL (not gmail.com)</li>
+                    <li>Keep the cron job frequency to once per hour (avoid spam)</li>
+                    <li>Review SendGrid analytics regularly</li>
+                </ul>
+
+                <div class="callout callout-warning">
+                    <strong>⚠️ Important:</strong><br>
+                    Email automation is optional. The review system works perfectly without it - customers can still leave reviews directly on product pages. Email automation simply helps increase review collection rates.
+                </div>
+            </section>
+
+            <section id="api-reference">
+                <h2>API Reference</h2>
+                <p>While you don't need to call these APIs directly (the widget handles it), they're documented here for reference and advanced use cases.</p>
+
+                <h3>Public APIs</h3>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-get">GET</span>
+                        <code>/api/reviews</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Retrieve approved reviews for a product with filtering, sorting, and pagination.</p>
+
+                    <h4 style="margin-top: 1rem;">Query Parameters:</h4>
+                    <table style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>productId</code></td>
+                                <td>string</td>
+                                <td>✅</td>
+                                <td>-</td>
+                                <td>Product identifier</td>
+                            </tr>
+                            <tr>
+                                <td><code>status</code></td>
+                                <td>string</td>
+                                <td>❌</td>
+                                <td>'approved'</td>
+                                <td>Filter by status (approved/pending/rejected)</td>
+                            </tr>
+                            <tr>
+                                <td><code>rating</code></td>
+                                <td>integer</td>
+                                <td>❌</td>
+                                <td>-</td>
+                                <td>Filter by star rating (1-5)</td>
+                            </tr>
+                            <tr>
+                                <td><code>hasImages</code></td>
+                                <td>boolean</td>
+                                <td>❌</td>
+                                <td>false</td>
+                                <td>Only return reviews with images</td>
+                            </tr>
+                            <tr>
+                                <td><code>sort</code></td>
+                                <td>string</td>
+                                <td>❌</td>
+                                <td>'recent'</td>
+                                <td>Sort order (recent/highest/lowest)</td>
+                            </tr>
+                            <tr>
+                                <td><code>page</code></td>
+                                <td>integer</td>
+                                <td>❌</td>
+                                <td>1</td>
+                                <td>Page number</td>
+                            </tr>
+                            <tr>
+                                <td><code>limit</code></td>
+                                <td>integer</td>
+                                <td>❌</td>
+                                <td>20</td>
+                                <td>Results per page (max 100)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-top: 1rem;">Example Response:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "reviews": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "product_id": "WF723",
+      "author": "John Doe",
+      "rating": 5,
+      "text": "Excellent product! Highly recommended.",
+      "images": ["https://..."],
+      "verified_purchase": true,
+      "created_at": "2024-12-01T10:30:00Z"
+    }
+  ],
+  "total": 45,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 3
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-get">GET</span>
+                        <code>/api/reviews/stats</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Get review statistics for a product (average rating, total count, star distribution).</p>
+
+                    <h4 style="margin-top: 1rem;">Query Parameters:</h4>
+                    <table style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>productId</code></td>
+                                <td>string</td>
+                                <td>✅</td>
+                                <td>Product identifier</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-top: 1rem;">Example Response:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "totalReviews": 45,
+  "averageRating": 4.52,
+  "distribution": {
+    "1": 2,
+    "2": 3,
+    "3": 5,
+    "4": 15,
+    "5": 20
+  }
+}</code></pre>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <strong>📊 Caching:</strong> Statistics are cached for 5 minutes to reduce database load. Cache is automatically invalidated when reviews are approved/rejected.
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-post">POST</span>
+                        <code>/api/reviews/submit</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Submit a new customer review. Requires JWT authentication.</p>
+
+                    <h4 style="margin-top: 1rem;">Headers:</h4>
+                    <table style="font-size: 0.85rem;">
+                        <tbody>
+                            <tr>
+                                <td><code>Authorization</code></td>
+                                <td>Bearer {token}</td>
+                            </tr>
+                            <tr>
+                                <td><code>Content-Type</code></td>
+                                <td>application/json</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-top: 1rem;">Request Body:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "productId": "WF723",
+  "orderId": "ORD-12345",     // Optional
+  "rating": 5,                 // 1-5 stars
+  "text": "Great product!",    // Max 1000 characters
+  "images": ["url1", "url2"]   // Optional, max 3 images
+}</code></pre>
+                    </div>
+
+                    <h4 style="margin-top: 1rem;">Business Logic:</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li><strong>5-star reviews:</strong> Instantly approved (status: 'approved')</li>
+                        <li><strong>4-star and below:</strong> Pending moderation (status: 'pending')</li>
+                        <li>Duplicate prevention: One review per user per product</li>
+                        <li>Avatar auto-generated from email using DiceBear API</li>
+                    </ul>
+
+                    <h4 style="margin-top: 1rem;">Response:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "review": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "approved",
+    ...
+  },
+  "message": "Review submitted and approved!"
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-post">POST</span>
+                        <code>/api/reviews/upload</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Upload review images. Requires JWT authentication.</p>
+
+                    <h4 style="margin-top: 1rem;">Headers:</h4>
+                    <table style="font-size: 0.85rem;">
+                        <tbody>
+                            <tr>
+                                <td><code>Authorization</code></td>
+                                <td>Bearer {token}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-top: 1rem;">Request Body:</h4>
+                    <p>FormData with 1-3 image files</p>
+
+                    <h4>Validation Rules:</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Max 3 images per review</li>
+                        <li>Max 5MB per image</li>
+                        <li>Supported formats: JPEG, PNG, WEBP</li>
+                        <li>Images stored as base64 data URLs (can upgrade to cloud storage)</li>
+                    </ul>
+
+                    <h4 style="margin-top: 1rem;">Response:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "urls": [
+    "data:image/jpeg;base64,/9j/4AAQ...",
+    "data:image/png;base64,iVBORw0KG..."
+  ]
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 3rem;">Admin APIs</h3>
+                <p>These endpoints require admin session authentication (HTTP-only cookie).</p>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-post">POST</span>
+                        <code>/api/admin/auth/login</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Admin login with email and password.</p>
+
+                    <h4 style="margin-top: 1rem;">Request Body:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "email": "admin@vlemobile.com",
+  "password": "Admin123!"
+}</code></pre>
+                    </div>
+
+                    <h4 style="margin-top: 1rem;">Response:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "admin": {
+    "id": "uuid",
+    "email": "admin@vlemobile.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "role": "super_admin"
+  }
+}</code></pre>
+                    </div>
+
+                    <p style="margin-top: 1rem;">Sets HTTP-only <code>admin_session</code> cookie valid for 7 days.</p>
+                </div>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-get">GET</span>
+                        <code>/api/admin/reviews</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Get reviews with admin filters. Requires admin session.</p>
+
+                    <h4 style="margin-top: 1rem;">Query Parameters:</h4>
+                    <table style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>status</code></td>
+                                <td>string</td>
+                                <td>'pending'</td>
+                                <td>Filter by status</td>
+                            </tr>
+                            <tr>
+                                <td><code>productId</code></td>
+                                <td>string</td>
+                                <td>-</td>
+                                <td>Optional product filter</td>
+                            </tr>
+                            <tr>
+                                <td><code>page</code></td>
+                                <td>integer</td>
+                                <td>1</td>
+                                <td>Page number</td>
+                            </tr>
+                            <tr>
+                                <td><code>limit</code></td>
+                                <td>integer</td>
+                                <td>50</td>
+                                <td>Results per page</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-top: 1rem;">Response:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "reviews": [...],
+  "total": 25,
+  "page": 1,
+  "limit": 50,
+  "counts": {
+    "pending": 12,
+    "approved": 45,
+    "rejected": 8
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div>
+                        <span class="api-method method-patch">PATCH</span>
+                        <code>/api/admin/moderate</code>
+                    </div>
+                    <p style="margin-top: 1rem;">Approve or reject a review. Requires admin session.</p>
+
+                    <h4 style="margin-top: 1rem;">Request Body:</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "reviewId": "550e8400-e29b-41d4-a716-446655440000",
+  "action": "approve"  // or "reject"
+}</code></pre>
+                    </div>
+
+                    <h4 style="margin-top: 1rem;">Actions:</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Updates review status</li>
+                        <li>Sets <code>moderated_at</code> timestamp</li>
+                        <li>Records <code>moderated_by</code> admin ID</li>
+                        <li>Invalidates product statistics cache</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="admin-portal">
+                <h2>Admin Portal</h2>
+                <p>The admin portal is a separate application at <code>/admin</code> with independent authentication. Your existing admin panel remains completely unchanged.</p>
+
+                <h3>Accessing the Admin Portal</h3>
+                <ol>
+                    <li>Navigate to <code>https://reviews.vlemobile.com/admin/login</code></li>
+                    <li>Login with default credentials:
+                        <ul style="margin-top: 0.5rem;">
+                            <li><strong>Email:</strong> admin@vlemobile.com</li>
+                            <li><strong>Password:</strong> Admin123!</li>
+                        </ul>
+                    </li>
+                    <li>Change password immediately after first login (coming soon)</li>
+                </ol>
+
+                <div class="callout callout-danger">
+                    <strong>🔒 Security:</strong> Change the default admin password immediately in production. We recommend using a password manager to generate a strong, unique password.
+                </div>
+
+                <h3>Admin Dashboard Features</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📋</div>
+                        <h4>Review Moderation</h4>
+                        <p>View pending reviews in an organized queue. Approve or reject with one click.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h4>Status Tabs</h4>
+                        <p>Switch between pending, approved, and rejected reviews. See real-time counts for each status.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h4>Review Preview</h4>
+                        <p>Click any review to see full details including images, customer info, and timestamps.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h4>Bulk Actions</h4>
+                        <p>Coming soon: Approve or reject multiple reviews at once.</p>
+                    </div>
+                </div>
+
+                <h3>Admin Roles</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Permissions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>moderator</strong></td>
+                            <td>Can approve/reject reviews</td>
+                        </tr>
+                        <tr>
+                            <td><strong>admin</strong></td>
+                            <td>Can approve/reject reviews + view analytics</td>
+                        </tr>
+                        <tr>
+                            <td><strong>super_admin</strong></td>
+                            <td>Full access + user management (coming soon)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Session Management</h3>
+                <ul>
+                    <li>Sessions expire after 7 days of inactivity</li>
+                    <li>Sessions stored securely in HTTP-only cookies</li>
+                    <li>Automatic logout on session expiration</li>
+                    <li>Manual logout available via dashboard</li>
+                </ul>
+            </section>
+
+            <section id="testing">
+                <h2>Testing & Debugging</h2>
+
+                <h3>Pre-Launch Checklist</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox"> Widget appears on product page</li>
+                    <li><input type="checkbox"> Logged-in users see "Write Review" button</li>
+                    <li><input type="checkbox"> Logged-out users see reviews but no submit button</li>
+                    <li><input type="checkbox"> Mobile layout looks correct</li>
+                    <li><input type="checkbox"> Can submit 5-star review (appears immediately)</li>
+                    <li><input type="checkbox"> Can submit 4-star review (shows pending message)</li>
+                    <li><input type="checkbox"> Can upload 1-3 images successfully</li>
+                    <li><input type="checkbox"> Form validation works correctly</li>
+                    <li><input type="checkbox"> Can login to admin portal</li>
+                    <li><input type="checkbox"> Pending reviews appear in admin dashboard</li>
+                    <li><input type="checkbox"> Can approve/reject reviews</li>
+                    <li><input type="checkbox"> Statistics update after moderation</li>
+                </ul>
+
+                <h3>Browser Console Checks</h3>
+                <p>Open browser DevTools (F12) and run these checks:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Console</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-javascript">// Check if widget loaded
+console.log(window.VLEReviews);
+// Should output: {init: ƒ}
+
+// Check stored token
+console.log(sessionStorage.getItem('customer_token'));
+// Should output your JWT token
+
+// Test API connection
+fetch('https://reviews.vlemobile.com/api/reviews?productId=TEST')
+  .then(r => r.json())
+  .then(console.log);
+// Should return reviews data or empty array</code></pre>
+                </div>
+
+                <h3>Network Tab Monitoring</h3>
+                <p>In DevTools Network tab, check for:</p>
+                <ul>
+                    <li>✅ <code>200 OK</code> responses from <code>/api/reviews</code></li>
+                    <li>✅ JWT token in <code>Authorization</code> request headers</li>
+                    <li>✅ Proper CORS headers in responses:
+                        <ul style="margin-top: 0.5rem;">
+                            <li><code>Access-Control-Allow-Origin: *</code></li>
+                            <li><code>Access-Control-Allow-Credentials: true</code></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>Common Issues & Fixes</h3>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Widget doesn't appear</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Troubleshooting Steps:</h4>
+                                <ul>
+                                    <li>✓ Check browser console for JavaScript errors</li>
+                                    <li>✓ Verify script URL is correct: <code>https://reviews.vlemobile.com/embed.js</code></li>
+                                    <li>✓ Ensure container element exists: <code>&lt;div id="vle-reviews"&gt;</code></li>
+                                    <li>✓ Check for JavaScript conflicts with other libraries</li>
+                                    <li>✓ Try loading page in incognito mode (rules out extensions)</li>
+                                </ul>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <span>Debug Code</span>
+                                    </div>
+                                    <pre><code class="language-javascript">// Check if container exists
+const container = document.getElementById('vle-reviews');
+console.log('Container:', container);
+
+// Check if script loaded
+console.log('Script loaded:', !!window.VLEReviews);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>"Unauthorized" error when submitting review</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Troubleshooting Steps:</h4>
+                                <ul>
+                                    <li>✓ Verify JWT secret matches on both systems</li>
+                                    <li>✓ Check token hasn't expired (check <code>exp</code> field)</li>
+                                    <li>✓ Ensure token includes all required fields: id, email, firstName, lastName</li>
+                                    <li>✓ Test token at <a href="https://jwt.io" target="_blank">jwt.io</a></li>
+                                    <li>✓ Check that token is being passed to widget correctly</li>
+                                </ul>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <span>Verify Token</span>
+                                    </div>
+                                    <pre><code class="language-javascript">// Get stored token
+const token = sessionStorage.getItem('customer_token');
+console.log('Token:', token);
+
+// Decode token (without verification)
+const payload = JSON.parse(atob(token.split('.')[1]));
+console.log('Payload:', payload);
+console.log('Expires:', new Date(payload.exp * 1000));</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Reviews don't submit / API errors</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Troubleshooting Steps:</h4>
+                                <ul>
+                                    <li>✓ Open Network tab in DevTools and check API responses</li>
+                                    <li>✓ Verify user is authenticated (token present)</li>
+                                    <li>✓ Check image file sizes (max 5MB each)</li>
+                                    <li>✓ Ensure review text is under 1000 characters</li>
+                                    <li>✓ Look for validation errors in API response</li>
+                                    <li>✓ Check for duplicate review (one per user per product)</li>
+                                </ul>
+                                <p style="margin-top: 1rem;">Check the browser console and Network tab for detailed error messages. Verify your JWT_SECRET matches between systems.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Widget iframe height is incorrect</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Troubleshooting Steps:</h4>
+                                <ul>
+                                    <li>✓ Check that postMessage listener isn't blocked by CSP</li>
+                                    <li>✓ Verify iframe can communicate with parent window</li>
+                                    <li>✓ Try adding explicit height to container as fallback</li>
+                                </ul>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <span>Manual Height Fix</span>
+                                    </div>
+                                    <pre><code class="language-css">#vle-reviews iframe {
+  min-height: 800px; /* Fallback height */
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Health Check Script</h3>
+                <p>Run this comprehensive health check in your browser console:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Health Check</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-javascript">(async function healthCheck() {
+  console.log('🔍 VLE Reviews Health Check\n');
+
+  const checks = {
+    widgetLoaded: !!window.VLEReviews,
+    tokenStored: !!sessionStorage.getItem('customer_token'),
+    containerExists: !!document.getElementById('vle-reviews'),
+    apiReachable: false,
+    corsConfigured: false
+  };
+
+  // Test API connection
+  try {
+    const response = await fetch(
+      'https://reviews.vlemobile.com/api/reviews?productId=TEST'
+    );
+    checks.apiReachable = response.ok;
+    checks.corsConfigured = true;
+  } catch (e) {
+    console.error('❌ API unreachable:', e.message);
+  }
+
+  // Display results
+  console.table(checks);
+
+  // Summary
+  const passed = Object.values(checks).filter(Boolean).length;
+  const total = Object.keys(checks).length;
+
+  if (passed === total) {
+    console.log('✅ All systems operational! (' + passed + '/' + total + ')');
+  } else {
+    console.log('⚠️ Issues detected: ' + passed + '/' + total + ' checks passed');
+    console.log('See table above for details');
+  }
+})();</code></pre>
+                </div>
+            </section>
+
+            <section id="production">
+                <h2>Production Deployment</h2>
+
+                <h3>Critical Pre-Launch Tasks</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox"> Change default admin password</li>
+                    <li><input type="checkbox"> Configure strong JWT secret (32+ characters)</li>
+                    <li><input type="checkbox"> Set up HTTPS/SSL certificate</li>
+                    <li><input type="checkbox"> Configure CORS for your production domain</li>
+                    <li><input type="checkbox"> Test on production domain before launch</li>
+                    <li><input type="checkbox"> Set up error monitoring (Sentry, LogRocket, etc.)</li>
+                    <li><input type="checkbox"> Configure rate limiting</li>
+                    <li><input type="checkbox"> Set up automated backups</li>
+                </ul>
+
+                <h3>Environment Variables</h3>
+                <p>Ensure these environment variables are configured in production:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>.env.production</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-bash"># Customer Authentication (REQUIRED)
+CUSTOMER_JWT_SECRET=your-super-secret-32-char-minimum-key
+
+# Application URL (REQUIRED)
+NEXT_PUBLIC_APP_URL=https://reviews.yourdomain.com
+
+# Database (AUTO-CONFIGURED by hosting platform)
+DATABASE_URL=postgresql://...
+
+# SendGrid Email (OPTIONAL - for automation)
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+
+# Webhooks (OPTIONAL - for automation)
+WEBHOOK_API_KEY=another-secure-random-key</code></pre>
+                </div>
+
+                <h3>Performance Optimization</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Optimization</th>
+                            <th>Impact</th>
+                            <th>How to Enable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Statistics Caching</td>
+                            <td>70% reduction in DB queries</td>
+                            <td>Enabled by default (5-minute TTL)</td>
+                        </tr>
+                        <tr>
+                            <td>CDN for embed.js</td>
+                            <td>200ms faster widget init</td>
+                            <td>Configure in <code>next.config.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Image Compression</td>
+                            <td>60% faster page load</td>
+                            <td>Automatic WebP conversion</td>
+                        </tr>
+                        <tr>
+                            <td>Rate Limiting</td>
+                            <td>Prevents abuse</td>
+                            <td>Configured per endpoint</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Security Best Practices</h3>
+                <div class="callout callout-danger">
+                    <strong>🔒 JWT Security</strong>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Use strong secrets (32+ characters)</li>
+                        <li>Never expose secrets in client code</li>
+                        <li>Rotate secrets periodically (every 90 days)</li>
+                        <li>Use HTTPS only in production</li>
+                    </ul>
+                </div>
+
+                <div class="callout callout-danger">
+                    <strong>🔒 API Security</strong>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Enable rate limiting (default: 100 req/min)</li>
+                        <li>Validate all inputs server-side</li>
+                        <li>Sanitize user content before display</li>
+                        <li>Use CORS properly (restrict origins)</li>
+                    </ul>
+                </div>
+
+                <div class="callout callout-danger">
+                    <strong>🔒 Admin Security</strong>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Require strong passwords (12+ chars)</li>
+                        <li>Enable 2FA (coming soon)</li>
+                        <li>Set session timeout (7 days default)</li>
+                        <li>Keep audit logs of all actions</li>
+                    </ul>
+                </div>
+
+                <h3>Monitoring & Alerts</h3>
+                <p>Set up monitoring for these metrics:</p>
+                <ul>
+                    <li><strong>Uptime:</strong> Monitor /api/health endpoint (99.9% target)</li>
+                    <li><strong>Response Time:</strong> API endpoints should respond < 500ms</li>
+                    <li><strong>Error Rate:</strong> Alert if > 1% of requests fail</li>
+                    <li><strong>Review Volume:</strong> Track reviews submitted per day</li>
+                    <li><strong>Database Size:</strong> Monitor growth and plan capacity</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+
+                <h3>Error Reference Guide</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Error Code</th>
+                            <th>Message</th>
+                            <th>Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>401</code></td>
+                            <td>Unauthorized</td>
+                            <td>Check JWT token validity and expiration</td>
+                        </tr>
+                        <tr>
+                            <td><code>400</code></td>
+                            <td>Invalid input</td>
+                            <td>Check request format and required fields</td>
+                        </tr>
+                        <tr>
+                            <td><code>429</code></td>
+                            <td>Rate limited</td>
+                            <td>Reduce request frequency, wait 60 seconds</td>
+                        </tr>
+                        <tr>
+                            <td><code>500</code></td>
+                            <td>Server error</td>
+<td>Check Supabase logs and webhook configuration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+
+            <section id="faq">
+                <h2>Frequently Asked Questions</h2>
+
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Do I need to change my existing database?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>No!</strong> The review system uses its own separate PostgreSQL database. Your existing database schema remains completely untouched. No migrations, no new tables, no foreign keys to worry about.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>How do you verify customers actually purchased the product?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>We trust your authentication system. If you only show the review button to verified purchasers on your product page, and pass us a valid JWT token, we accept that the user has purchased the product. This "trust but verify" approach keeps integration simple while maintaining security.</p>
+                                <p style="margin-top: 1rem;">All reviews are marked as "verified purchase" by default. If you want additional verification, you can optionally send us order data via webhooks.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Can customers edit their reviews after submission?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>Not currently, but this feature is on our roadmap for Q1 2025. For now, customers can submit a new review which will replace their old one (one review per user per product).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>What happens if the review system goes down?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>Your main e-commerce site continues working normally. The widget degrades gracefully - the iframe will show a loading state or cached reviews. Since the review system is completely separate, downtime doesn't affect your ability to sell products.</p>
+                                <p style="margin-top: 1rem;">We maintain 99.9% uptime with automated failover and redundancy. All infrastructure is hosted on AWS with multi-region backup.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Is this GDPR compliant?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>Yes. Users can request data deletion by emailing us. We provide a data export feature. Email opt-outs are honored immediately. We only store data necessary for the review functionality and don't share it with third parties.</p>
+                                <p style="margin-top: 1rem;">All data is encrypted at rest and in transit. We maintain detailed audit logs of data access.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Can I customize the widget design?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>Currently, you can customize the container styling via CSS, and the widget inherits your site's font family. Full theme customization (colors, layouts, button styles) is coming in Q2 2025.</p>
+                                <p style="margin-top: 1rem;">For enterprise customers, we offer white-label solutions with complete design control.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>How do I migrate existing reviews from another system?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>You can use the Supabase SQL editor to bulk import existing reviews. The database schema supports standard CSV imports.</p>
+                                <p style="margin-top: 1rem;">Required CSV fields: author, email, rating, text, product_id, created_at</p>
+                                <p style="margin-top: 0.5rem;">Use the <code>reviews</code> table in your Supabase dashboard for imports.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>How do review request emails work?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>When your e-commerce system sends order data to the webhook endpoint, the review system automatically schedules review request emails 7 days after purchase. If the customer hasn't left a review after 15 days, a gentle reminder is sent.</p>
+                                <p style="margin-top: 1rem;">Email templates are professionally designed and include product images, direct review links, and unsubscribe options. All emails sent via SendGrid with high deliverability.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>What review moderation options do I have?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p>You have full control via the admin dashboard:</p>
+                                <ul style="margin-top: 0.5rem;">
+                                    <li><strong>Auto-approve 5-stars:</strong> Instant visibility (enabled by default)</li>
+                                    <li><strong>Manual moderation:</strong> All other ratings require approval</li>
+                                    <li><strong>Bulk actions:</strong> Approve/reject multiple at once (coming soon)</li>
+                                    <li><strong>Delete/reject:</strong> Remove inappropriate or spam reviews</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Can I use this with Shopify/WooCommerce?</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Yes!</strong> The widget works with any platform that allows you to:</p>
+                                <ol style="margin-top: 0.5rem;">
+                                    <li>Generate JWT tokens (most platforms can via apps/plugins)</li>
+                                    <li>Add custom HTML to product pages</li>
+                                    <li>Include external JavaScript</li>
+                                </ol>
+                                <p style="margin-top: 1rem;">The widget works with any platform that supports custom JavaScript. You'll need to generate JWT tokens server-side regardless of the platform.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer style="margin-top: 4rem; padding: 2rem 0; border-top: 1px solid var(--border); text-align: center; color: var(--gray-600);">
+                <p>VLE Mobile Review System © 2025 | Internal Use Only</p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem;">Built with Next.js 14, PostgreSQL, and ❤️</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') {
+            document.querySelector('.theme-toggle').textContent = '☀️ Light Mode';
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Tab Switching
+        function switchTab(event, tabId) {
+            const tabButtons = event.target.parentElement.querySelectorAll('.tab-button');
+            const tabContents = event.target.parentElement.parentElement.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Copy Code
+        function copyCode(button) {
+            const codeBlock = button.parentElement.nextElementSibling;
+            const code = codeBlock.textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Accordion Toggle
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const isActive = item.classList.contains('active');
+
+            // Close all accordions in this section
+            const accordions = header.closest('.accordion').querySelectorAll('.accordion-item');
+            accordions.forEach(acc => acc.classList.remove('active'));
+
+            // Open clicked accordion if it wasn't active
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        }
+
+        // Sidebar Active Link
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.sidebar nav a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    // Close mobile menu after navigation
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
