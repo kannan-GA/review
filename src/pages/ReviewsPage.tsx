@@ -21,6 +21,9 @@ function ReviewsPage() {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+    console.log('supabaseUrl', supabaseUrl);
+    console.log('supabaseKey', supabaseKey);
+
     if (!supabaseUrl || !supabaseKey) {
       setError('Supabase configuration is missing. Please check your environment variables.');
       setLoading(false);
@@ -89,6 +92,16 @@ function ReviewsPage() {
         imageUrls = newReview.images;
       }
 
+      // Extract name and email from URL parameters
+      const urlName = searchParams.get('name');
+      const urlEmail = searchParams.get('email');
+
+      // Determine author: prefer URL param > fallback
+      const author = urlName || 'Customer';
+
+      // Determine email: prefer URL param > fallback
+      const customerEmail = urlEmail || 'anonymous@example.com';
+
       // Save review with product_id
       const { data, error: insertError } = await supabase
         .from('reviews')
@@ -97,7 +110,8 @@ function ReviewsPage() {
           rating: newReview.rating,
           text: newReview.text,
           images: imageUrls,
-          author: 'Customer',
+          author: author,
+          email: customerEmail, // Required: email column is NOT NULL
           verified_purchase: false,
           status: newReview.rating === 5 ? 'approved' : 'pending',
         })

@@ -74,13 +74,15 @@ CREATE POLICY "Allow public review inserts"
   TO public
   WITH CHECK (true);
 
--- Create policies for orders (authenticated users only)
-CREATE POLICY "Authenticated users can view their orders"
+-- Create policies for orders (allow public reads for order verification)
+CREATE POLICY "Allow public order reads"
   ON orders FOR SELECT
+  TO public
   USING (true);
 
-CREATE POLICY "Service role can insert orders"
+CREATE POLICY "Allow public order inserts"
   ON orders FOR INSERT
+  TO public
   WITH CHECK (true);
 
 -- Create policies for email_queue (service role only)

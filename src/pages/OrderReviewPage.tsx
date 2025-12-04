@@ -148,6 +148,21 @@ function OrderReviewPage() {
         imageUrls = review.images;
       }
 
+      // Extract name and email from URL parameters
+      const urlName = searchParams.get('name');
+      const urlEmail = searchParams.get('email');
+
+      // Determine author: prefer orderData > URL param > fallback
+      const author = orderData?.customer_name || 
+                     urlName || 
+                     orderData?.customer_email?.split('@')[0] || 
+                     'Customer';
+
+      // Determine email: prefer orderData > URL param > fallback
+      const customerEmail = orderData?.customer_email || 
+                           urlEmail || 
+                           'anonymous@example.com';
+
       // Save review with product_id
       const { data, error: insertError } = await supabase
         .from('reviews')
@@ -157,7 +172,8 @@ function OrderReviewPage() {
           text: review.text,
           images: imageUrls,
           order_id: orderData?.id || null, // Link to order if available
-          author: orderData?.customer_name || orderData?.customer_email?.split('@')[0] || 'Customer',
+          author: author,
+          email: customerEmail, // Required: email column is NOT NULL
           verified_purchase: !!orderData?.id, // Verified if order exists
           status: review.rating === 5 ? 'approved' : 'pending',
         })
