@@ -2,8 +2,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import ReviewForm from '../components/ReviewForm';
+import ReviewCard from '../components/ReviewCard';
 import { Review, ReviewSubmissionStatus } from '../types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 
 interface OrderData {
   id: string;
@@ -12,18 +13,22 @@ interface OrderData {
   customer_name?: string;
   product_id: string;
   product_name?: string;
-  order_date: string;
+  order_date?: string;
+  purchase_date?: string;
 }
 
 function OrderReviewPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const orderId = searchParams.get('orderId');
+  const [productId, setProductId] = useState<string>('');
   const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [existingReviews, setExistingReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<ReviewSubmissionStatus>(ReviewSubmissionStatus.IDLE);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -38,8 +43,8 @@ function OrderReviewPage() {
     const client = createClient(supabaseUrl, supabaseKey);
     setSupabase(client);
 
-    // Fetch order details from Supabase
-    const fetchOrder = async () => {
+    // Fetch order details and reviews
+    const fetchData = async () => {
       if (!orderId) {
         setError('Order ID is missing from URL');
         setLoading(false);
@@ -47,31 +52,86 @@ function OrderReviewPage() {
       }
 
       try {
-        const { data, error: fetchError } = await client
+        // First, try to find order by order_id
+        const { data: orderData, error: orderError } = await client
           .from('orders')
           .select('*')
           .eq('order_id', orderId)
           .single();
 
-        if (fetchError) {
-          console.error('Order not found:', fetchError);
-          setError('Order not found. Please check your order ID.');
+        let finalProductId = orderId; // Default to orderId as product_id
+        let finalOrderData: OrderData | null = null;
+
+        if (orderData && !orderError) {
+          finalOrderData = {
+            id: orderData.id,
+            order_id: orderData.order_id,
+            customer_email: orderData.customer_email,
+            customer_name: orderData.customer_name,
+            product_id: orderData.product_id,
+            product_name: orderData.product_name,
+            order_date: orderData.order_date || orderData.purchase_date,
+            purchase_date: orderData.purchase_date || orderData.order_date,
+          };
+          finalProductId = orderData.product_id;
         } else {
-          setOrderData(data);
+          // If order not found, use orderId as product_id directly
+          finalProductId = orderId;
+          finalOrderData = {
+            id: '',
+            order_id: orderId,
+            customer_email: '',
+            customer_name: '',
+            product_id: orderId,
+            product_name: '',
+          };
+        }
+
+        setProductId(finalProductId);
+        setOrderData(finalOrderData);
+
+        // Fetch existing reviews for this product
+        const { data: reviewsData, error: reviewsError } = await client
+          .from('reviews')
+          .select('*')
+          .eq('product_id', finalProductId)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+
+        if (!reviewsError && reviewsData) {
+          const transformedReviews: Review[] = reviewsData.map((item: any) => ({
+            id: item.id,
+            productId: item.product_id,
+            author: item.author || 'Anonymous',
+            avatarUrl: item.avatar_url || `https://picsum.photos/seed/${item.id}/100/100`,
+            date: new Date(item.created_at).toISOString().split('T')[0],
+            rating: item.rating,
+            text: item.text,
+            images: item.images || [],
+            verifiedPurchase: item.verified_purchase || false,
+            status: item.status,
+            orderId: item.order_id,
+          }));
+          setExistingReviews(transformedReviews);
+        }
+
+        // If no reviews exist, show the form
+        if (!reviewsData || reviewsData.length === 0) {
+          setShowReviewForm(true);
         }
       } catch (err) {
-        console.error('Error fetching order:', err);
-        setError('Failed to load order information.');
+        console.error('Error fetching data:', err);
+        setError('Failed to load information.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrder();
+    fetchData();
   }, [orderId]);
 
   const handleSubmit = async (review: Omit<Review, 'id' | 'author' | 'avatarUrl' | 'date' | 'verifiedPurchase' | 'status'>) => {
-    if (!supabase || !orderData) {
+    if (!supabase || !productId) {
       setError('Unable to submit review. Please try again.');
       return;
     }
@@ -88,17 +148,17 @@ function OrderReviewPage() {
         imageUrls = review.images;
       }
 
-      // Save review with order_id
+      // Save review with product_id
       const { data, error: insertError } = await supabase
         .from('reviews')
         .insert({
-          product_id: orderData.product_id,
+          product_id: productId,
           rating: review.rating,
           text: review.text,
           images: imageUrls,
-          order_id: orderData.id, // Link to order
-          author: orderData.customer_name || orderData.customer_email.split('@')[0],
-          verified_purchase: true, // Since it's from an order
+          order_id: orderData?.id || null, // Link to order if available
+          author: orderData?.customer_name || orderData?.customer_email?.split('@')[0] || 'Customer',
+          verified_purchase: !!orderData?.id, // Verified if order exists
           status: review.rating === 5 ? 'approved' : 'pending',
         })
         .select()
@@ -111,6 +171,25 @@ function OrderReviewPage() {
         return;
       }
 
+      // Add the new review to existing reviews if approved
+      if (data && review.rating === 5) {
+        const newReview: Review = {
+          id: data.id,
+          productId: data.product_id,
+          author: data.author || 'Customer',
+          avatarUrl: data.avatar_url || `https://picsum.photos/seed/${data.id}/100/100`,
+          date: new Date(data.created_at).toISOString().split('T')[0],
+          rating: data.rating,
+          text: data.text,
+          images: data.images || [],
+          verifiedPurchase: data.verified_purchase || false,
+          status: data.status,
+          orderId: data.order_id,
+        };
+        setExistingReviews([newReview, ...existingReviews]);
+        setShowReviewForm(false);
+      }
+
       // Set success status based on rating
       if (review.rating === 5) {
         setSubmissionStatus(ReviewSubmissionStatus.SUCCESS_5_STAR);
@@ -120,8 +199,10 @@ function OrderReviewPage() {
         }, 2000);
       } else if (review.rating === 4) {
         setSubmissionStatus(ReviewSubmissionStatus.SUCCESS_4_STAR);
+        setShowReviewForm(false);
       } else {
         setSubmissionStatus(ReviewSubmissionStatus.SUCCESS_LOW_STAR);
+        setShowReviewForm(false);
       }
     } catch (err) {
       console.error('Error submitting review:', err);
@@ -131,66 +212,89 @@ function OrderReviewPage() {
   };
 
   const handleCancel = () => {
-    navigate('/');
+    setShowReviewForm(false);
+  };
+
+  const handleCloseModal = () => {
+    // Close modal and go back or close window
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.close();
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gray-900 bg-opacity-50 flex items-center justify-center fixed inset-0 z-50">
+        <div className="bg-white rounded-lg shadow-xl p-8 text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-orange" />
-          <p className="text-gray-600">Loading order information...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
-  }
-
-  if (error && !orderData) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="px-6 py-2 bg-brand-orange text-white rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Go Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!orderData) {
-    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Review Your Order</h1>
-          <div className="text-gray-600 space-y-1">
-            <p><strong>Order ID:</strong> {orderData.order_id}</p>
-            {orderData.product_name && (
-              <p><strong>Product:</strong> {orderData.product_name}</p>
-            )}
-            <p><strong>Order Date:</strong> {new Date(orderData.order_date).toLocaleDateString()}</p>
-          </div>
+    <div className="min-h-screen bg-gray-900 bg-opacity-50 flex items-center justify-center fixed inset-0 z-50 p-4">
+      <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+        {/* Close button */}
+        <button
+          onClick={handleCloseModal}
+          className="absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        <div className="p-6">
+          {error && submissionStatus === ReviewSubmissionStatus.ERROR && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600">{error}</p>
+            </div>
+          )}
+
+          {showReviewForm ? (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Write a Review</h2>
+              <ReviewForm 
+                onSubmit={handleSubmit} 
+                onCancel={handleCancel}
+                disableAutoNavigate={true}
+              />
+            </div>
+          ) : (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Product Reviews</h2>
+              
+              {existingReviews.length > 0 ? (
+                <div className="space-y-4">
+                  {existingReviews.map((review) => (
+                    <ReviewCard key={review.id} review={review} />
+                  ))}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="w-full px-6 py-3 bg-brand-orange text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                    >
+                      Write a Review
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 text-lg mb-6">No reviews yet for this product.</p>
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="px-6 py-3 bg-brand-orange text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                  >
+                    Be the first to review
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {error && submissionStatus === ReviewSubmissionStatus.ERROR && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
-          </div>
-        )}
-
-        <ReviewForm 
-          onSubmit={handleSubmit} 
-          onCancel={handleCancel}
-          disableAutoNavigate={true}
-        />
       </div>
     </div>
   );
